@@ -173,21 +173,24 @@ class cert_database(object): #Connecting to crt.sh public API to retrieve subdom
                         if get_fld("https://" + subdomain) == domain:
                             unique_domains.add(subdomain.lower())
                     except: pass
-            return sorted(unique_domains)
+            if unique_domain:
+               return sorted(unique_domains)
         except:
-            base_url = "https://crt.sh/?q={}&output=json"
-            if wildcard:
-                domain = "%25.{}".format(domain)
-                url = base_url.format(domain)
-            subdomains = set()
-            user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:64.0) Gecko/20100101 Firefox/64.0'
-            req = requests.get(url, headers={'User-Agent': user_agent}, timeout=30, verify=False) #times out after 30 seconds waiting (Mainly for large datasets)
-            if req.status_code == 200:
-                content = req.content.decode('utf-8')
-                data = json.loads(content)
-                for subdomain in data:
-                    subdomains.add(subdomain["name_value"].lower())
-                return sorted(subdomains)
+            pass
+
+        base_url = "https://crt.sh/?q={}&output=json"
+        if wildcard:
+            domain = "%25.{}".format(domain)
+            url = base_url.format(domain)
+        subdomains = set()
+        user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:64.0) Gecko/20100101 Firefox/64.0'
+        req = requests.get(url, headers={'User-Agent': user_agent}, timeout=30, verify=False) #times out after 30 seconds waiting (Mainly for large datasets)
+        if req.status_code == 200:
+            content = req.content.decode('utf-8')
+            data = json.loads(content)
+            for subdomain in data:
+                subdomains.add(subdomain["name_value"].lower())
+            return sorted(subdomains)
 
 def queuing(): #using the queue for multithreading purposes
     global domain_to_monitor
